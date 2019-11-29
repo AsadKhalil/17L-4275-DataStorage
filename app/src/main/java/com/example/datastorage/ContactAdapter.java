@@ -12,10 +12,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class ContactAdapter extends BaseAdapter {
     private Context context;
-    private ArrayList<ContactModel>listOfContacts;
+    private ArrayList<ContactModel> listOfContacts;
 
     public ContactAdapter(Context context, ArrayList<ContactModel> listOfContacts) {
         this.context = context;
@@ -36,73 +37,7 @@ public class ContactAdapter extends BaseAdapter {
     public long getItemId(int i) {
         return i;
     }
-//    @Override
-//    public View getView(int i, View view, ViewGroup viewGroup)
-//    {
-//        //position=i    convertview=view   parent=viewgroup
-//        LayoutInflater inflater = (LayoutInflater) context
-//                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//        ContactModel contactModel=listOfContacts.get(i);
-//        ViewHolder holder=new ViewHolder();
-//        ImageView imageView;
-//        if(view==null)
-//        {
-//              view=inflater.inflate(R.layout.nameimage,viewGroup,false);
-//              imageView   =view.findViewById(R.id.imageView_cimage);
-//              TextView tv_name=view.findViewById(R.id.tv_cname);
-//             // TextView tv_number=view.findViewById(R.id.tv_email);
-//
-//             view.setTag(holder);
-//
-//        //    view.setTag(tv_number);
-//
-//        }
-//        else
-//        {
-//            holder=(ViewHolder)view.getTag();
-//        }
-//
-//
-//        if(!contactModel.getContactName().equals("")&&contactModel.getContactName()!=null)
-//        {
-//            holder.contactName.setText(contactModel.getContactName());
-//
-//        }
-//        else
-//        {
-//            holder.contactName.setText("No Name");
-//        }
-//        Bitmap bitimage=null;
-//        if(!contactModel.getContactPhoto().equals("")&&contactModel.getContactPhoto()!=null)
-//        {
-//            bitimage=BitmapFactory.decodeFile(contactModel.getContactPhoto());
-//            if(bitimage!=null)
-//            {
-//                holder.contactImage.setImageBitmap(bitimage);
-//            }
-//            else
-//            {
-//                bitimage=BitmapFactory.decodeResource(context.getResources(),R.drawable.ic_person_black_24dp);
-//                holder.contactImage.setImageBitmap(bitimage);
-//            }
-//        }
-//        else
-//        {
-//            bitimage = BitmapFactory.decodeResource(context.getResources(),
-//                    R.drawable.ic_person_black_24dp);
-//            holder.contactImage.setImageBitmap(bitimage);
-//        }
-//        return view;
-//    }
-//
-//    private class ViewHolder {
-//        ImageView contactImage;
-//        TextView contactName, contactNumber, contactEmail, contactOtherDetails;
-//
-//
-//
-//
-//    }
+
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {

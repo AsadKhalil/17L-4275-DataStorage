@@ -12,7 +12,7 @@ public interface Dao
     @Insert
     public void addContact(ContactTable contactTable);
 
-    @Query("select * from contactTable")
+    @Query("select * from contact")
     public List<ContactTable> getContacts();
 
     @Delete

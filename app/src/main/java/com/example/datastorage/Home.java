@@ -41,6 +41,13 @@ public class Home extends AppCompatActivity implements  View.OnClickListener {
     ArrayList<ContactModel> contactModels=new ArrayList<>();
     private static ContactAdapter contactAdapter;
 
+
+    String photoPath = "" ; // Photo path
+    String name;
+    String id;
+    String numb;
+    String email;
+    byte[] images;
 //    private static final String TAG = Home.class.getSimpleName();
 //    private static final int REQUEST_CODE_PICK_CONTACTS = 1;
 //    private Uri uriContact;
@@ -64,7 +71,7 @@ public class Home extends AppCompatActivity implements  View.OnClickListener {
         showConatct.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //   List<ContactTable> contactList=MainActivity.ContactDataBase.class.MyDao();
+
                 showContact();
             }
         });
@@ -84,97 +91,53 @@ public class Home extends AppCompatActivity implements  View.OnClickListener {
 
     private void loadContacts()
     {
-
-//        // using native contacts selection
-//        // Intent.ACTION_PICK = Pick an item from the data, returning what was selected.
-//       // startActivityForResult(new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI), REQUEST_CODE_PICK_CONTACTS);
-//
-//        Uri uri = ContactsContract.CommonDataKinds.Phone.CONTENT_URI;
-//        String[] projection = {ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME, ContactsContract.CommonDataKinds.Phone.NUMBER};
-//        String selection = null; //where
-//        String[] selectionArgs = null;
-//        String sortOrder = null;
-//
-//        ContentResolver resolver = getContentResolver();
-//        Cursor cursor = resolver.query(uri, projection, selection, selectionArgs, sortOrder);
-//        while (cursor.moveToNext())
-//        {
-//            String name = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
-//            String num = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-////            String email = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
-//
-////            ContactTable user = new ContactTable();
-////            user.setName(name);
-////            user.setNumber(num);
-////            //user.setEmail(email);
-////            Home.contactDataBase.MyDao().addContact((user));
-//
-//            ContactModel md=new ContactModel();
-//            md.setContactName(name);
-//            md.setContactNo(num);
-//            //md.setContactEmail();
-//            contactModels.add(md);
-//
-//            name = "";
-//            num = "";
-//        }
-
-        contactModels=readContacts();
+        readContacts();
     }
-//    @Override
-//    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-//        super.onActivityResult(requestCode, resultCode, data);
-//
-//        if (requestCode == REQUEST_CODE_PICK_CONTACTS && resultCode == RESULT_OK) {
-//            Log.d(TAG, "Response: " + data.toString());
-//            uriContact = data.getData();
-//
-//
-//            String cname=retrieveContactName();
-//            String cno=retrieveContactNumber();
-//            //retrieveContactPhoto();
-//
-//            ContactTable user = new ContactTable();
-//            user.setName(cname);
-//            user.setNumber(cno);
-//            //user.setEmail(email);
-//            Home.contactDataBase.MyDao().addContact((user));
-//
-//        }
-//    }
 
-    private void showContact() {
-       // List<ContactTable> contacts = Home.contactDataBase.MyDao().getContacts();
-//        for (ContactTable user : contacts) {
-//            String name = user.getName();
-//            String number = user.getNumber();
-//            String email = user.getEmail();
-//
-//            listOfContacts.add(name + "\n" + number + "\n" + email);
-//
-//
-//        }
-//        for (ContactModel m:contactModels)
-//        {
-//            String n=m.getContactName();
-//            String no=m.getContactNo();
-//            listOfContacts.add(n +"\n" +no +"\n");
-//        }
-//        adapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, listOfContacts);
-//        lv.setAdapter(adapter);
-
-        //contactAdapter=null;
-        if(contactAdapter==null)
+    private void showContact()
+    {
+        List<ContactTable> contactTable=contactDataBase.MyDao().getContacts();
+        for(ContactTable user : contactTable)
         {
-            contactAdapter=new ContactAdapter(this,contactModels);
-            lv.setAdapter(contactAdapter);
+            photoPath = "" ; // Photo path
+            name=user.getName();
+            id=user.getId();
+            numb=user.getNumber();
+            email=user.getEmail();
+            byte[] images=user.getImage();
+            if (images != null)
+            {
 
+                // Now make a cache folder in file manager to
+                // make cache of contacts images and save them
+                // in .png
+                Bitmap bitmap = BitmapFactory.decodeByteArray(
+                        images, 0,images.length);
+                File cacheDirectory = getBaseContext()
+                        .getCacheDir();
+                File tmp = new File(cacheDirectory.getPath()
+                        + "/_androhub" + Long.parseLong(id) + ".png");
+                try {
+                    FileOutputStream fileOutputStream = new FileOutputStream(
+                            tmp);
+                    bitmap.compress(Bitmap.CompressFormat.PNG,
+                            100, fileOutputStream);
+                    fileOutputStream.flush();
+                    fileOutputStream.close();
+                } catch (Exception e) {
+                    // TODO: handle exception
+                    e.printStackTrace();
+                }
+                photoPath = tmp.getPath();// finally get the
+                // saved path of
+                // image
+            }
+
+            contactModels.add(new ContactModel(id,name,email,numb,photoPath));
         }
-        else
-        {
-            System.out.println("addapter is nill");
-        }
-            lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        contactAdapter=new ContactAdapter(this,contactModels);
+        lv.setAdapter(contactAdapter);
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                 @Override
                 public void onItemClick(AdapterView<?> adapterView, View view, int i, long l)
                 {
@@ -186,133 +149,11 @@ public class Home extends AppCompatActivity implements  View.OnClickListener {
                 }
             });
 
-  //      adapter.notifyDataSetChanged();
      }
-//
-//    private void retrieveContactPhoto() {
-//
-//        Bitmap photo = null;
-//
-//        try {
-//            InputStream inputStream = ContactsContract.Contacts.openContactPhotoInputStream(getContentResolver(),
-//                    ContentUris.withAppendedId(ContactsContract.Contacts.CONTENT_URI, new Long(contactID)));
-//
-//            if (inputStream != null) {
-//                photo = BitmapFactory.decodeStream(inputStream);
-//     //           ImageView imageView = (ImageView) findViewById(R.id.img_contact);
-//           //     imageView.setImageBitmap(photo);
-//            }
-//
-//            assert inputStream != null;
-//            inputStream.close();
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//
-//    }
-//    private String retrieveContactNumber() {
-//
-//        String contactNumber = null;
-//
-//        // getting contacts ID
-//        Cursor cursorID = getContentResolver().query(uriContact,
-//                new String[]{ContactsContract.Contacts._ID},
-//                null, null, null);
-//
-//        if (cursorID.moveToFirst()) {
-//
-//            contactID = cursorID.getString(cursorID.getColumnIndex(ContactsContract.Contacts._ID));
-//        }
-//
-//        cursorID.close();
-//
-//        Log.d(TAG, "Contact ID: " + contactID);
-//
-//        // Using the contact ID now we will get contact phone number
-//        Cursor cursorPhone = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI,
-//                new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER},
-//
-//                ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ? AND " +
-//                        ContactsContract.CommonDataKinds.Phone.TYPE + " = " +
-//                        ContactsContract.CommonDataKinds.Phone.TYPE_MOBILE,
-//
-//                new String[]{contactID},
-//                null);
-//
-//        if (cursorPhone.moveToFirst()) {
-//            contactNumber = cursorPhone.getString(cursorPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-//        }
-//
-//        cursorPhone.close();
-//
-//        Log.d(TAG, "Contact Phone Number: " + contactNumber);
-//        return contactNumber;
-//    }
-//
-//    private String reteriveContactEmail()
-//    {
-//        String contactEmail=null;
-//
-//        // getting contacts ID
-//        Cursor cursorID = getContentResolver().query(uriContact,
-//                new String[]{ContactsContract.Contacts._ID},
-//                null, null, null);
-//
-//        if (cursorID.moveToFirst()) {
-//
-//            contactID = cursorID.getString(cursorID.getColumnIndex(ContactsContract.Contacts._ID));
-//        }
-//
-//        cursorID.close();
-//
-//        Log.d(TAG, "Contact ID: " + contactID);
-//
-//        ContentResolver contactResolver = getContentResolver();
-//
-//        Cursor  emailCursor = contactResolver.query(ContactsContract.CommonDataKinds.Email.CONTENT_URI,
-//                null,
-//                ContactsContract.CommonDataKinds.Email.CONTACT_ID + " = ?", new String[] { contactID }, null);
-//
-//            String s=null;
-//            while (emailCursor.moveToNext())
-//        {
-//            String phone = emailCursor.getString(emailCursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.DATA));
-//            int type = emailCursor.getInt(emailCursor.getColumnIndex(ContactsContract.CommonDataKinds.Email.TYPE));
-//             s = (String) ContactsContract.CommonDataKinds.Email.getTypeLabel(getResources(), type, "");
-//
-//            Log.d("TAG", s + " email: " + phone);
-//        }
-//
-//        emailCursor.close();
-//
-//            return s;
-//    }
-//
-//    private String retrieveContactName() {
-//
-//        String contactName = null;
-//
-//        // querying contact data store
-//        Cursor cursor = getContentResolver().query(uriContact, null, null, null, null);
-//
-//        if (cursor.moveToFirst()) {
-//
-//            // DISPLAY_NAME = The display name for the contact.
-//            // HAS_PHONE_NUMBER =   An indicator of whether this contact has at least one phone number.
-//
-//            contactName = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-//        }
-//
-//        cursor.close();
-//
-//        Log.d(TAG, "Contact Name: " + contactName);
-//
-//        return contactName;
-//    }
 
 
-    private ArrayList<ContactModel> readContacts() {
+
+    private void readContacts() {
         ArrayList<ContactModel> contactList = new ArrayList<ContactModel>();
 
         Uri uri = ContactsContract.Contacts.CONTENT_URI; // Contact URI
@@ -492,16 +333,20 @@ public class Home extends AppCompatActivity implements  View.OnClickListener {
 
                     } while (dataCursor.moveToNext()); // Now move to next
                     // cursor
-
-                    contactList.add(new ContactModel(Long.toString(contctId),
-                            displayName, contactNumbers, contactEmailAddresses,
-                            photoPath));// Finally add
+//
+//                    contactList.add(new ContactModel(Long.toString(contctId),
+//                            displayName, contactNumbers, contactEmailAddresses,
+//                            photoPath));// Finally add
                     // items to
                     // array list
+                    ContactTable ct=new ContactTable(Long.toString(contctId),
+                           displayName, contactNumbers, contactEmailAddresses,
+                           photoByte);
+                  contactDataBase.MyDao().addContact(ct);
                 }
 
             } while (contactsCursor.moveToNext());
         }
-        return contactList;
+
     }
 }

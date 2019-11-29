@@ -19,9 +19,12 @@ public class ContactDetails extends AppCompatActivity {
     TextView name;
     TextView email;
     TextView number;
-    Button addimage;
-    String nmbertoDel;
-    Button back;
+
+    String cid;
+    String cname;
+    String cno;
+    String cemail;
+    byte[] imag;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,11 +37,17 @@ public class ContactDetails extends AppCompatActivity {
         name=findViewById(R.id.tv_contactName);
         email=findViewById(R.id.tv_email);
         number=findViewById((R.id.tv_contactNo));
-        back=findViewById(R.id.Back);
-        addimage=findViewById(R.id.addImage);
+
+
         name.setText(contactModel.getContactName());
         number.setText(contactModel.getContactNo());
         email.setText(contactModel.getContactEmail());
+
+        cid=contactModel.getContactId();
+        cname=contactModel.getContactName();
+        cno=contactModel.getContactNo();
+        cemail=contactModel.getContactEmail();
+        imag=null;
         Bitmap im= BitmapFactory.decodeFile(contactModel.getContactPhoto());
 
         if(im==null)
@@ -53,21 +62,17 @@ public class ContactDetails extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                nmbertoDel=number.getText().toString();
-                ContactTable contactTable=new ContactTable();
-                contactTable.setNumber(nmbertoDel);
-                Home.contactDataBase.MyDao().deleteContact(contactTable);
-                Toast.makeText(getApplicationContext(),"Contact deleted..",Toast.LENGTH_LONG).show();
+               ContactTable contactTable=new ContactTable(cid,cname,cno,cemail,imag);
+               Home.contactDataBase.MyDao().deleteContact(contactTable);
+              Toast.makeText(getApplicationContext(),"Contact deleted..",Toast.LENGTH_LONG).show();
+              name.setText("");
+                email.setText("");
+                number.setText("");
 
-                //set fields empty??
-            }
-        });
-        back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
                 Intent intent=new Intent(ContactDetails.this,Home.class);
                 startActivity(intent);
             }
         });
+
     }
 }
